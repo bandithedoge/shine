@@ -9,7 +9,6 @@ import Shine.ANSI
 
 import qualified Data.Text as T
 
-import qualified Text.PrettyPrint.Boxes as B
 import Text.Wrap
 
 indent :: T.Text -> T.Text

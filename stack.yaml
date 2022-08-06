@@ -3,9 +3,6 @@ resolver: lts-19.16
 packages:
   - .
 
-extra-deps:
-  - colourista-0.1.0.1
-
 nix:
   enable: true
   packages: [zlib]

@@ -5,14 +5,13 @@ cabal-version: 2.0
 -- see: https://github.com/sol/hpack
 
 name:           shine
-version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/shine#readme>
-homepage:       https://github.com/githubuser/shine#readme
-bug-reports:    https://github.com/githubuser/shine/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2022 Author name here
-license:        BSD3
+version:        0.1
+homepage:       https://github.com/bandithedoge/shine#readme
+bug-reports:    https://github.com/bandithedoge/shine/issues
+author:         bandithedoge
+maintainer:     bandithedoge@protonmail.com
+copyright:      2022 Mikołaj Lercher
+license:        GPL-3
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
@@ -20,7 +19,7 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/shine
+  location: https://github.com/bandithedoge/shine
 
 library
   exposed-modules:
@@ -37,8 +36,6 @@ library
       src
   build-depends:
       base
-    , boxes
-    , colour
     , pandoc
     , pandoc-types
     , relude

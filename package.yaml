@@ -23,6 +23,7 @@ dependencies:
 library:
   source-dirs: src
   dependencies:
+    - optstream
     - pandoc
     - pandoc-types
     - terminal-size

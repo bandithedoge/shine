@@ -1,6 +1,4 @@
-module Shine (
-  shineMain,
-) where
+module Shine (shineMain) where
 
 import Shine.Render
 import Shine.Types
@@ -8,19 +6,28 @@ import Shine.Types
 import Data.Maybe
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
+import Options.OptStream
 import qualified System.Console.Terminal.Size as S
 import Text.Pandoc
-import Text.Wrap
 
-mdToAst :: String -> IO Pandoc
-mdToAst txt = runIOorExplode $ readCommonMark def $ T.pack txt
+getAst :: String -> IO Pandoc
+getAst path = do
+  contents <- readFile path
+  runIOorExplode $ readMarkdown def $ T.pack contents
 
 blocksFromAst :: Pandoc -> [Block]
 blocksFromAst (Pandoc _ xs) = xs
 
 shineMain :: IO ()
 shineMain = do
-  text <- readFile "test.md"
-  ast <- mdToAst text
+  opts <- parseArgsWithHelp optionsP
   term <- S.size
-  TIO.putStr $ renderDoc Shine{width = S.width $ fromJust term, blocks = blocksFromAst ast}
+  ast <- getAst $ optPath opts
+
+  let shine =
+        Shine
+          { shWidth = S.width $ fromJust term
+          , shBlocks = blocksFromAst ast
+          }
+
+  TIO.putStr $ renderDoc shine

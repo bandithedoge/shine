@@ -50,6 +50,7 @@ renderInline _ Space = T.singleton ' '
 renderInline _ SoftBreak = T.singleton '\n'
 renderInline _ LineBreak = T.singleton '\n'
 renderInline _ (RawInline _ x) = formatWith ["dim"] x
+renderInline _ (Math _ x) = formatWith ["green"] x
 renderInline _ (Link attr xs x) =
   formatWith ["cyan"] (renderInlines xs)
     <> formatWith
@@ -80,7 +81,7 @@ renderBlock _ (Para xs) = renderInlines xs
 renderBlock _ (LineBlock xs) = T.concat $ map renderInlines xs
 renderBlock shine (CodeBlock attr x) =
   box
-    (width shine)
+    (shWidth shine)
     ( let langs = (\(_, a, _) -> a) attr
        in ( if L.null langs
               then T.empty
@@ -118,10 +119,10 @@ renderBlock _ (Header i _ xs) =
       , T.singleton ' '
       , renderInlines xs
       ]
-renderBlock shine HorizontalRule = T.pack $ replicate (width shine) '\x2501'
+renderBlock shine HorizontalRule = T.pack $ replicate (shWidth shine) '\x2501'
 renderBlock _ xs = T.pack $ show xs
 
 renderDoc :: Shine -> T.Text
 renderDoc shine =
-  wrap (width shine) $
-    T.intercalate (T.pack "\n\n") $ map (renderBlock shine) $ blocks shine
+  wrap (shWidth shine) $
+    T.intercalate (T.pack "\n\n") $ map (renderBlock shine) $ shBlocks shine

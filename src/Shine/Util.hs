@@ -7,6 +7,7 @@ module Shine.Util (
 
 import Shine.ANSI
 
+import qualified Data.HashMap.Lazy as HM
 import qualified Data.Text as T
 
 import Text.Wrap

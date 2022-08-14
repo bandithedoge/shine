@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Shine (shineMain) where
 
 import Shine.Render
@@ -13,7 +14,7 @@ import Text.Pandoc
 getAst :: String -> IO Pandoc
 getAst path = do
   contents <- readFile path
-  runIOorExplode $ readMarkdown def $ T.pack contents
+  runIOorExplode $ readCommonMark def{readerExtensions = getAllExtensions "markdown"} $ T.pack contents
 
 blocksFromAst :: Pandoc -> [Block]
 blocksFromAst (Pandoc _ xs) = xs
@@ -28,6 +29,7 @@ shineMain = do
         Shine
           { shWidth = S.width $ fromJust term
           , shBlocks = blocksFromAst ast
+          , shOptions = opts
           }
 
   TIO.putStr $ renderDoc shine

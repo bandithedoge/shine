@@ -36,13 +36,11 @@ library
       src
   build-depends:
       base
-    , directory
-    , filepath
+    , hable
+    , hashable
     , optstream
     , pandoc
     , pandoc-types
-    , path
-    , path-io
     , relude
     , terminal-size
     , text

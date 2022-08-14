@@ -11,6 +11,13 @@ packages:
     hackage: optstream-0.1.1.0@sha256:1134198fc470a626e62e836bc3a1e51f7934e256913ff36e7f85aec0d52fdb7b,2192
   original:
     hackage: optstream-0.1.1.0
+- completed:
+    pantry-tree:
+      sha256: defe1259dbd4e6eed6c432d58ab94976d38ef86e36629f9d64960df6b7efb979
+      size: 548
+    hackage: hable-0.3.1@sha256:cfa2f6581a5eac0f091e0cfe81aa35251912d925b0774dde4b013edb39441176,831
+  original:
+    hackage: hable-0.3.1
 snapshots:
 - completed:
     sha256: a27a5761890ade44d7dd21a5f5f93c87e60b9c063655fff835d69dd1071474f0

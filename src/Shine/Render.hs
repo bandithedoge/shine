@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
 module Shine.Render (
   renderInline,
   renderBlock,
@@ -8,25 +10,20 @@ import Shine.ANSI
 import Shine.Types
 import Shine.Util
 
+import Control.Exception
 import Data.Char (isUpper, toUpper)
 import qualified Data.HashMap.Lazy as HM
 import qualified Data.List as L
 import Data.Maybe
 import qualified Data.Text as T
 
+import Hable
+import Hable.BoxChar
+import Hable.Config
+import Hable.Style.Unicode
 import Text.Pandoc.Definition
 import Text.Pandoc.Walk
 import Text.Wrap
-
-renderDelimiter :: ListNumberDelim -> T.Text
-renderDelimiter Period = T.singleton '.'
-renderDelimiter OneParen = T.singleton ')'
-renderDelimiter TwoParens = T.replicate 2 $ T.singleton ')'
-renderDelimiter DefaultDelim = renderDelimiter Period
-
-renderQuote :: QuoteType -> T.Text
-renderQuote SingleQuote = T.singleton '\''
-renderQuote DoubleQuote = T.singleton '"'
 
 renderInlines :: [Inline] -> T.Text
 renderInlines xs = T.concat $ map (renderInline defaultShine) xs
@@ -45,6 +42,9 @@ renderInline _ (Quoted x xs) =
     renderQuote x
       <> renderInlines xs
       <> renderQuote x
+  where
+    renderQuote SingleQuote = T.singleton '\''
+    renderQuote DoubleQuote = T.singleton '"'
 renderInline _ (Code _ x) = formatWith ["dim"] x
 renderInline _ Space = T.singleton ' '
 renderInline _ SoftBreak = T.singleton '\n'
@@ -67,7 +67,10 @@ renderInline _ (Image attr xs x) =
           <> fst x
           <> T.pack ")"
       )
-renderInline _ x = T.pack $ show x
+renderInline shine xs =
+  if optStrict $ shOptions shine
+    then throw StrictMode
+    else T.pack $ show xs
 
 renderBlocks :: Shine -> [Block] -> T.Text
 renderBlocks shine xs =
@@ -109,6 +112,11 @@ renderBlock shine (OrderedList x xs) =
             <> renderBlocks shine y
       )
       xs
+  where
+    renderDelimiter Period = T.singleton '.'
+    renderDelimiter OneParen = T.singleton ')'
+    renderDelimiter TwoParens = T.replicate 2 $ T.singleton ')'
+    renderDelimiter DefaultDelim = renderDelimiter Period
 renderBlock shine (BulletList xs) =
   T.intercalate (T.singleton '\n') $
     map (\xs -> T.singleton '\x2022' <> T.singleton ' ' <> renderBlocks shine xs) xs
@@ -120,7 +128,39 @@ renderBlock _ (Header i _ xs) =
       , renderInlines xs
       ]
 renderBlock shine HorizontalRule = T.pack $ replicate (shWidth shine) '\x2501'
-renderBlock _ xs = T.pack $ show xs
+renderBlock shine (Table attr cap specs head bodies foot) =
+  T.pack $
+    hable
+      defaultConfig
+        { hLineStyle =
+            if L.null $ rowsFromHead head
+              then normal
+              else thickBorder
+        , vLineStyle = normal
+        }
+      ( ( let cells = map cellsFromRow $ rowsFromHead head
+              blocks = concatMap (map blocksFromCell) cells
+           in map renderCell blocks
+        ) :
+        let rows = concatMap rowsFromBody bodies
+            cells = map cellsFromRow rows
+         in map (map (renderCell . blocksFromCell)) cells
+      )
+  where
+    normal m n = if n `elem` [1, m] then Just Thick else Just Normal
+    thickBorder m n = if n `elem` [1, 2, m] then Just Thick else Just Normal
+    rowsFromHead (TableHead _ xs) = xs
+    rowsFromBody (TableBody _ _ xs ys) = ys
+    cellsFromRow (Row _ xs) = xs
+    blocksFromCell (Cell _ _ _ _ xs) = xs
+    renderCell x = T.unpack $ wrapCell $ renderBlocks shineConfig x
+    shineConfig = shine{shWidth = 0}
+    wrapCell = wrap $ (shWidth shine `div` length specs) - 4
+renderBlock shine Null = T.empty
+renderBlock shine xs =
+  if optStrict $ shOptions shine
+    then throw StrictMode
+    else T.pack $ show xs
 
 renderDoc :: Shine -> T.Text
 renderDoc shine =

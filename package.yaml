@@ -23,6 +23,8 @@ dependencies:
 library:
   source-dirs: src
   dependencies:
+    - hable
+    - hashable
     - optstream
     - pandoc
     - pandoc-types

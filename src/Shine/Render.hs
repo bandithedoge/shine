@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-
 module Shine.Render (
   renderInline,
   renderBlock,
@@ -37,6 +35,15 @@ renderInline _ (Strong xs) = formatWith ["bold"] $ renderInlines xs
 renderInline _ (Strikeout xs) = formatWith ["strikeout"] $ renderInlines xs
 renderInline _ (Superscript xs) = formatWith ["bold", "italic"] $ renderInlines xs
 renderInline _ (Subscript xs) = formatWith ["underline", "italic"] $ renderInlines xs
+renderInline _ (SmallCaps xs) =
+  T.concat $
+    map
+      ( \x ->
+          if isUpper x
+            then formatWith ["bold"] $ T.singleton x
+            else formatWith ["dim"] $ T.singleton x
+      )
+      $ T.unpack (renderInlines xs)
 renderInline _ (Quoted x xs) =
   formatWith ["italic"] $
     renderQuote x
@@ -67,6 +74,7 @@ renderInline _ (Image attr xs x) =
           <> fst x
           <> T.pack ")"
       )
+renderInline _ (Span _ xs) = renderInlines xs
 renderInline shine xs =
   if optStrict $ shOptions shine
     then throw StrictMode

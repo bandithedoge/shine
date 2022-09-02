@@ -164,6 +164,7 @@ renderBlock shine (Table attr cap specs head bodies foot) =
     renderCell x = T.unpack $ wrapCell $ renderBlocks shineConfig x
     shineConfig = shine{shWidth = 0}
     wrapCell = wrap $ (shWidth shine `div` length specs) - 4
+renderBlock shine (Div _ xs) = renderBlocks shine xs
 renderBlock shine Null = T.empty
 renderBlock shine xs =
   if optStrict $ shOptions shine

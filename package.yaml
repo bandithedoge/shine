@@ -23,6 +23,7 @@ dependencies:
 library:
   source-dirs: src
   dependencies:
+    - containers
     - hable
     - hashable
     - optstream

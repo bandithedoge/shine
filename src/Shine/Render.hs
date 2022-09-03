@@ -19,6 +19,7 @@ import Hable
 import Hable.BoxChar
 import Hable.Config
 import Hable.Style.Unicode
+import qualified Text.Pandoc.Builder as P
 import Text.Pandoc.Definition
 import Text.Pandoc.Walk
 import Text.Wrap
@@ -135,7 +136,7 @@ renderBlock _ (Header i _ xs) =
       , T.singleton ' '
       , renderInlines xs
       ]
-renderBlock shine HorizontalRule = T.pack $ replicate (shWidth shine) '\x2501'
+renderBlock shine HorizontalRule = rule shine
 renderBlock shine (Table attr cap specs head bodies foot) =
   T.pack $
     hable
@@ -174,4 +175,45 @@ renderBlock shine xs =
 renderDoc :: Shine -> T.Text
 renderDoc shine =
   wrap (shWidth shine) $
-    T.intercalate (T.pack "\n\n") $ map (renderBlock shine) $ shBlocks shine
+    let notes = modifyNotes shine
+     in T.intercalate (T.pack "\n\n") (map (renderBlock shine) $ getBlocks $ fst notes)
+          <> T.pack "\n\n"
+          <> rule shine
+          <> T.pack "\n\n"
+          <> snd notes
+  where
+    getBlocks (Pandoc _ xs) = xs
+
+modifyNotes :: Shine -> (Pandoc, T.Text)
+modifyNotes shine =
+  let notes = rmdups $ query extractNotes (shDoc shine)
+   in ( walk (insertNotes notes) (shDoc shine)
+      , T.intercalate (T.pack "\n\n") $
+          map
+            ( \x ->
+                formatWith
+                  ["bold", "green"]
+                  (T.singleton '[' <> T.pack (show $ fromJust (L.elemIndex x notes) + 1) <> T.pack "]: ")
+                  <> renderBlocks shine x
+            )
+            notes
+      )
+  where
+    rmdups :: (Eq a) => [a] -> [a]
+    rmdups [] = []
+    rmdups [x] = [x]
+    rmdups (x:xs) = x : [ k  | k <- rmdups xs, k /=x ]
+    extractNotes :: Inline -> [[Block]]
+    extractNotes (Note xs) = [xs]
+    extractNotes _ = []
+    insertNotes :: [[Block]] -> Inline -> Inline
+    insertNotes notes (Note xs) =
+      Str $
+        formatWith ["bold", "green"] $
+          T.singleton '['
+            <> T.pack
+              ( show $
+                  fromJust (L.elemIndex xs notes) + 1
+              )
+            <> T.singleton ']'
+    insertNotes _ x = x

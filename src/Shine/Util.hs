@@ -2,9 +2,11 @@ module Shine.Util (
   indent,
   box,
   wrap,
+  rule,
 ) where
 
 import Shine.ANSI
+import Shine.Types
 
 import qualified Data.HashMap.Lazy as HM
 import Data.Hashable
@@ -32,3 +34,6 @@ wrap i txt =
 
 box :: Int -> T.Text -> T.Text
 box width txt = T.intercalate (T.singleton '\n') $ map indent $ T.lines txt
+
+rule :: Shine -> T.Text
+rule shine = T.pack $ replicate (shWidth shine) '\x2501'

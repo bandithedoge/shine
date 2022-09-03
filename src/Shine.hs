@@ -12,24 +12,21 @@ import Options.OptStream
 import qualified System.Console.Terminal.Size as S
 import Text.Pandoc
 
-getAst :: String -> IO Pandoc
-getAst path = do
+getDoc :: String -> IO Pandoc
+getDoc path = do
   contents <- readFile path
   runIOorExplode $ readCommonMark def{readerExtensions = getAllExtensions "markdown"} $ T.pack contents
-
-blocksFromAst :: Pandoc -> [Block]
-blocksFromAst (Pandoc _ xs) = xs
 
 shineMain :: IO ()
 shineMain = do
   opts <- parseArgsWithHelp optionsP
   term <- S.size
-  ast <- getAst $ optPath opts
+  doc <- getDoc $ optPath opts
 
   let shine =
         Shine
           { shWidth = S.width $ fromJust term
-          , shBlocks = blocksFromAst ast
+          , shDoc = doc
           , shOptions = opts
           }
 

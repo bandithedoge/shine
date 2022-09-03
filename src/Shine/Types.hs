@@ -9,13 +9,15 @@ module Shine.Types (
 import Control.Applicative
 import Control.Exception (Exception)
 import Data.Functor
+import qualified Data.HashMap.Lazy as HM
 import Options.OptStream
 import Text.Pandoc
 import Text.Pandoc.Definition
+import qualified Data.Map.Lazy as M
 
 data Shine = Shine
   { shWidth :: Int
-  , shBlocks :: [Block]
+  , shDoc :: Pandoc
   , shOptions :: Options
   }
 
@@ -23,7 +25,7 @@ defaultShine :: Shine
 defaultShine =
   Shine
     { shWidth = 0
-    , shBlocks = []
+    , shDoc = Pandoc (Meta M.empty) []
     , shOptions =
         Options
           { optPath = ""

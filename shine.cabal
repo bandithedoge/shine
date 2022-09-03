@@ -36,6 +36,7 @@ library
       src
   build-depends:
       base
+    , containers
     , hable
     , hashable
     , optstream

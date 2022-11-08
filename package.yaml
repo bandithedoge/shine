@@ -30,6 +30,7 @@ library:
     - hashable
     - optstream
     - pandoc-types
+    - process-extras
     - terminal-size
     - unordered-containers
     - word-wrap

@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
 module Shine.Types (
   Shine (..),
   defaultShine,
@@ -28,18 +29,24 @@ defaultShine =
     , shDoc = Pandoc (Meta M.empty) []
     , shOptions =
         Options
-          { optStrict = False
+          { optPath = ""
+          , optFormat = ""
+          , optStrict = False
           }
     }
 
 data Options = Options
-  { optStrict :: Bool
+  { optPath :: FilePath
+  , optFormat :: String
+  , optStrict :: Bool
   }
 
 optionsP :: Parser Options
 optionsP =
   Options
-    <$> (flag ["-s", "--strict"] "Strict mode (error on unhandled syntax, only useful for debugging)" $> True <|> orElse False)
+    <$> (freeArg "PATH" "File to read. Leave empty for stdin." <|> orElse "")
+    <#> (param ["-f", "--format"] "STR" "Specify input format manually." <|> orElse "")
+    <#> (flag ["-s", "--strict"] "Strict mode (error on unhandled syntax, only useful for debugging)." $> True <|> orElse False)
 
 data ShineException = StrictMode deriving (Show)
 

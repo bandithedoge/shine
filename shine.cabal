@@ -43,6 +43,7 @@ library
     , hashable
     , optstream
     , pandoc-types
+    , process-extras
     , relude
     , terminal-size
     , text

@@ -37,14 +37,14 @@ renderInline _ (Strikeout xs) = formatWith ["strikeout"] $ renderInlines xs
 renderInline _ (Superscript xs) = formatWith ["bold", "italic"] $ renderInlines xs
 renderInline _ (Subscript xs) = formatWith ["underline", "italic"] $ renderInlines xs
 renderInline _ (SmallCaps xs) =
-  T.concat $
-    map
+  T.concat
+    $ map
       ( \x ->
           if isUpper x
             then formatWith ["bold"] $ T.singleton x
             else formatWith ["dim"] $ T.singleton x
       )
-      $ T.unpack (renderInlines xs)
+    $ T.unpack (renderInlines xs)
 renderInline _ (Quoted x xs) =
   formatWith ["italic"] $
     renderQuote x
@@ -111,11 +111,11 @@ renderBlock shine (OrderedList x xs) =
   T.intercalate (T.singleton '\n') $
     map
       ( \y ->
-          T.pack
+          formatWith ["bold", "yellow"] (T.pack
             ( show $
                 fromJust (L.elemIndex y xs)
                   + (\(a, _, _) -> a) x
-            )
+            ))
             <> renderDelimiter ((\(_, _, a) -> a) x)
             <> T.singleton ' '
             <> renderBlocks shine y
@@ -129,6 +129,22 @@ renderBlock shine (OrderedList x xs) =
 renderBlock shine (BulletList xs) =
   T.intercalate (T.singleton '\n') $
     map (\xs -> T.singleton '\x2022' <> T.singleton ' ' <> renderBlocks shine xs) xs
+renderBlock shine (DefinitionList xs) =
+  T.intercalate
+    (T.singleton '\n')
+    ( map
+        ( \x ->
+            formatWith
+              ["bold", "yellow"]
+              ( T.pack "- " <> renderInlines (fst x)
+              )
+              <> T.pack ":\n"
+              <> formatWith ["italic"] (renderDefinition shine (snd x))
+        )
+        xs
+    )
+  where
+    renderDefinition shine xs = T.intercalate (T.singleton '\n') $ map (indent . renderBlocks shine) xs
 renderBlock _ (Header i _ xs) =
   formatWith ["black", "brightWhite!", "bold"] $
     T.concat
@@ -150,10 +166,10 @@ renderBlock shine (Table attr cap specs head bodies foot) =
       ( ( let cells = map cellsFromRow $ rowsFromHead head
               blocks = concatMap (map blocksFromCell) cells
            in map renderCell blocks
-        ) :
-        let rows = concatMap rowsFromBody bodies
-            cells = map cellsFromRow rows
-         in map (map (renderCell . blocksFromCell)) cells
+        )
+          : let rows = concatMap rowsFromBody bodies
+                cells = map cellsFromRow rows
+             in map (map (renderCell . blocksFromCell)) cells
       )
   where
     normal m n = if n `elem` [1, m] then Just Thick else Just Normal
@@ -167,10 +183,6 @@ renderBlock shine (Table attr cap specs head bodies foot) =
     wrapCell = wrap $ (shWidth shine `div` length specs) - 4
 renderBlock shine (Div _ xs) = renderBlocks shine xs
 renderBlock shine Null = T.empty
-renderBlock shine xs =
-  if optStrict $ shOptions shine
-    then throw StrictMode
-    else T.pack $ show xs
 
 renderDoc :: Shine -> T.Text
 renderDoc shine =
@@ -202,7 +214,7 @@ modifyNotes shine =
     rmdups :: (Eq a) => [a] -> [a]
     rmdups [] = []
     rmdups [x] = [x]
-    rmdups (x:xs) = x : [ k  | k <- rmdups xs, k /=x ]
+    rmdups (x : xs) = x : [k | k <- rmdups xs, k /= x]
     extractNotes :: Inline -> [[Block]]
     extractNotes (Note xs) = [xs]
     extractNotes _ = []

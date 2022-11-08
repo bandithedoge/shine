@@ -1,6 +1,0 @@
-cradle:
-  cabal:
-    - path: "./src/"
-      component: "lib:shine"
-    - path: "./app/"
-      component: "shine:exe:shine"

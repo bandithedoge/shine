@@ -1,7 +1,15 @@
 {
   nixConfig = {
-    substituters = ["https://shine.cachix.org" "https://cache.iog.io"];
-    trusted-public-keys = ["shine.cachix.org-1:nCuHaF+O1/gg0pwwx3z4pIOyqKpAZ8zxwCbSDzgYwh0=" "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ="];
+    substituters = [
+      "https://shine.cachix.org"
+      "https://cache.iog.io"
+      "https://cache.nixos.org"
+    ];
+    trusted-public-keys = [
+      "shine.cachix.org-1:nCuHaF+O1/gg0pwwx3z4pIOyqKpAZ8zxwCbSDzgYwh0="
+      "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ="
+      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+    ];
   };
   inputs = {
     haskellNix.url = "github:input-output-hk/haskell.nix";

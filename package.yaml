@@ -23,11 +23,12 @@ dependencies:
 library:
   source-dirs: src
   dependencies:
+    - aeson
+    - bytestring
     - containers
     - hable
     - hashable
     - optstream
-    - pandoc
     - pandoc-types
     - terminal-size
     - unordered-containers

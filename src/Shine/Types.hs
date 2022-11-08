@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 module Shine.Types (
   Shine (..),
   defaultShine,
@@ -10,10 +11,9 @@ import Control.Applicative
 import Control.Exception (Exception)
 import Data.Functor
 import qualified Data.HashMap.Lazy as HM
-import Options.OptStream
-import Text.Pandoc
-import Text.Pandoc.Definition
 import qualified Data.Map.Lazy as M
+import Options.OptStream
+import Text.Pandoc.Definition
 
 data Shine = Shine
   { shWidth :: Int
@@ -28,24 +28,18 @@ defaultShine =
     , shDoc = Pandoc (Meta M.empty) []
     , shOptions =
         Options
-          { optPath = ""
-          , optFormat = ""
-          , optStrict = False
+          { optStrict = False
           }
     }
 
 data Options = Options
-  { optPath :: String
-  , optFormat :: String
-  , optStrict :: Bool
+  { optStrict :: Bool
   }
 
 optionsP :: Parser Options
 optionsP =
   Options
-    <$> freeArg "ARG" "Path"
-    <#> (param ["-f", "--format"] "STR" "Specify input format manually." <|> orElse "")
-    <#> (flag ["-s", "--strict"] "Strict mode (error on unhandled syntax, only useful for debugging)" $> True <|> orElse False)
+    <$> (flag ["-s", "--strict"] "Strict mode (error on unhandled syntax, only useful for debugging)" $> True <|> orElse False)
 
 data ShineException = StrictMode deriving (Show)
 

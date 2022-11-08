@@ -1,6 +1,6 @@
 cabal-version: 2.0
 
--- This file has been generated from package.yaml by hpack version 0.34.7.
+-- This file has been generated from package.yaml by hpack version 0.35.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -35,12 +35,13 @@ library
   hs-source-dirs:
       src
   build-depends:
-      base
+      aeson
+    , base
+    , bytestring
     , containers
     , hable
     , hashable
     , optstream
-    , pandoc
     , pandoc-types
     , relude
     , terminal-size
